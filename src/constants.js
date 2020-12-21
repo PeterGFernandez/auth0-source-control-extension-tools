@@ -30,6 +30,7 @@ constants.PAGE_NAMES = [
 ];
 
 constants.DATABASE_CONNECTIONS_DIRECTORY = 'database-connections';
+constants.DATABASE_SCRIPTS_CHANGE_USERNAME = 'change_username';
 constants.DATABASE_SCRIPTS_CHANGE_EMAIL = 'change_email';
 constants.DATABASE_SCRIPTS_GET_USER = 'get_user';
 constants.DATABASE_SCRIPTS = [
@@ -39,7 +40,8 @@ constants.DATABASE_SCRIPTS = [
   'login',
   'change_password',
   'delete',
-  constants.DATABASE_SCRIPTS_CHANGE_EMAIL
+  constants.DATABASE_SCRIPTS_CHANGE_EMAIL,
+  constants.DATABASE_SCRIPTS_CHANGE_USERNAME
 ];
 constants.DATABASE_SCRIPTS_NO_IMPORT = [
   constants.DATABASE_SCRIPTS_GET_USER,
