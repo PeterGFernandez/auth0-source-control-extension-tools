@@ -62,7 +62,9 @@ describe('#guardianFactors handler', () => {
         { name: 'otp', enabled: true },
         { name: 'email', enabled: true },
         { name: 'duo', enabled: false },
-        { name: 'webauthn-roaming', enabled: false }
+        { name: 'webauthn-roaming', enabled: false },
+        { name: 'webauthn-platform', enabled: false },
+        { name: 'recovery-code', enabled: false }
       ];
 
       const auth0 = {
@@ -84,7 +86,9 @@ describe('#guardianFactors handler', () => {
         { name: 'otp', enabled: true },
         { name: 'email', enabled: true },
         { name: 'duo', enabled: false },
-        { name: 'webauthn-roaming', enabled: false }
+        { name: 'webauthn-roaming', enabled: false },
+        { name: 'webauthn-platform', enabled: false },
+        { name: 'recovery-code', enabled: false }
       ];
 
       const auth0 = {

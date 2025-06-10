@@ -9,6 +9,8 @@ constants.DEFAULT_RULE_STAGE = constants.RULES_STAGES[0];  // eslint-disable-lin
 constants.HOOKS_HIDDEN_SECRET_VALUE = '_VALUE_NOT_SHOWN_';
 
 constants.HOOKS_DIRECTORY = 'hooks';
+constants.ACTIONS_DIRECTORY = 'actions';
+constants.TRIGGERS_DIRECTORY = 'triggers';
 
 constants.RULES_CONFIGS_DIRECTORY = 'rules-configs';
 
@@ -59,6 +61,7 @@ constants.DATABASE_SCRIPTS_IMPORT = [
 constants.EMAIL_TEMPLATES_DIRECTORY = 'emails';
 
 constants.EMAIL_VERIFY = 'verify_email';
+constants.EMAIL_VERIFY_BY_CODE = 'verify_email_by_code';
 constants.EMAIL_RESET = 'reset_email';
 constants.EMAIL_WELCOME = 'welcome_email';
 constants.EMAIL_BLOCKED = 'blocked_account';
@@ -67,10 +70,13 @@ constants.EMAIL_ENROLLMENT = 'enrollment_email';
 constants.EMAIL_CHANGE_PASSWORD = 'change_password';
 constants.EMAIL_PASSWORD_RESET = 'password_reset';
 constants.EMAIL_MFA_OOB_CODE = 'mfa_oob_code';
+constants.EMAIL_USER_INVITATION = 'user_invitation';
 
 constants.EMAIL_TEMPLATES_NAMES = [
   constants.EMAIL_VERIFY + '.json',
   constants.EMAIL_VERIFY + '.html',
+  constants.EMAIL_VERIFY_BY_CODE + '.json',
+  constants.EMAIL_VERIFY_BY_CODE + '.html',
   constants.EMAIL_RESET + '.json',
   constants.EMAIL_RESET + '.html',
   constants.EMAIL_WELCOME + '.json',
@@ -86,11 +92,14 @@ constants.EMAIL_TEMPLATES_NAMES = [
   constants.EMAIL_PASSWORD_RESET + '.json',
   constants.EMAIL_PASSWORD_RESET + '.html',
   constants.EMAIL_MFA_OOB_CODE + '.json',
-  constants.EMAIL_MFA_OOB_CODE + '.html'
+  constants.EMAIL_MFA_OOB_CODE + '.html',
+  constants.EMAIL_USER_INVITATION + '.json',
+  constants.EMAIL_USER_INVITATION + '.html'
 ];
 
 constants.EMAIL_TEMPLATES_TYPES = [
   'verify_email',
+  'verify_email_by_code',
   'reset_email',
   'welcome_email',
   'blocked_account',
@@ -98,7 +107,8 @@ constants.EMAIL_TEMPLATES_TYPES = [
   'enrollment_email',
   'mfa_oob_code',
   'change_password',
-  'password_reset'
+  'password_reset',
+  'user_invitation'
 ];
 
 constants.GUARDIAN_DIRECTORY = 'guardian';
@@ -111,7 +121,9 @@ constants.GUARDIAN_FACTORS = [
   'otp',
   'email',
   'duo',
-  'webauthn-roaming'
+  'webauthn-roaming',
+  'webauthn-platform',
+  'recovery-code'
 ];
 constants.GUARDIAN_POLICIES = [
   'all-applications',

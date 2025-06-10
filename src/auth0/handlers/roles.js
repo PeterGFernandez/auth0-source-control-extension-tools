@@ -51,7 +51,7 @@ export default class RoleHandler extends DefaultHandler {
   async createRoles(creates) {
     await this.client.pool.addEachTask({
       data: creates || [],
-      generator: item => this.createRole(item).then((data) => {
+      generator: (item) => this.createRole(item).then((data) => {
         this.didCreate(data);
         this.created += 1;
       }).catch((err) => {
@@ -68,7 +68,7 @@ export default class RoleHandler extends DefaultHandler {
     if (this.config('AUTH0_ALLOW_DELETE') === 'true' || this.config('AUTH0_ALLOW_DELETE') === true) {
       await this.client.pool.addEachTask({
         data: dels || [],
-        generator: item => this.deleteRole(item).then(() => {
+        generator: (item) => this.deleteRole(item).then(() => {
           this.didDelete(item);
           this.deleted += 1;
         }).catch((err) => {
@@ -77,12 +77,12 @@ export default class RoleHandler extends DefaultHandler {
       }).promise();
     } else {
       log.warn(`Detected the following roles should be deleted. Doing so may be destructive.\nYou can enable deletes by setting 'AUTH0_ALLOW_DELETE' to true in the config
-      \n${dels.map(i => this.objString(i)).join('\n')}`);
+      \n${dels.map((i) => this.objString(i)).join('\n')}`);
     }
   }
 
   async updateRole(data, roles) {
-    const existingRole = await roles.find(roleDataForUpdate => roleDataForUpdate.name === data.name);
+    const existingRole = await roles.find((roleDataForUpdate) => roleDataForUpdate.name === data.name);
 
     const params = { id: data.id };
     const newPermissions = data.permissions;
@@ -106,7 +106,7 @@ export default class RoleHandler extends DefaultHandler {
   async updateRoles(updates, roles) {
     await this.client.pool.addEachTask({
       data: updates || [],
-      generator: item => this.updateRole(item, roles).then((data) => {
+      generator: (item) => this.updateRole(item, roles).then((data) => {
         this.didUpdate(data);
         this.updated += 1;
       }).catch((err) => {
@@ -126,9 +126,9 @@ export default class RoleHandler extends DefaultHandler {
     }
 
     try {
-      const roles = await this.getAllRoles();
+      const roles = await this.client.roles.getAll({ paginate: true });
       for (let index = 0; index < roles.length; index++) {
-        const permissions = await this.client.roles.permissions.get({ id: roles[index].id });
+        const permissions = await this.client.roles.permissions.getAll({ paginate: true, id: roles[index].id });
         const strippedPerms = await Promise.all(permissions.map(async (permission) => {
           delete permission.resource_server_name;
           delete permission.description;
@@ -144,23 +144,6 @@ export default class RoleHandler extends DefaultHandler {
       }
       throw err;
     }
-  }
-
-  async getAllRoles() {
-    let result = [];
-    let initialPage = 0;
-    let data = await this.client.roles.getAll({ include_totals: true }); // getAll() returns 50 roles as default
-    if (data && data.total !== 0) {
-      let pagesLeft = Math.ceil(data.total / data.limit) - 1;
-      result = data.roles;
-      while (pagesLeft > 0) {
-        initialPage += 1;
-        data = await this.client.roles.getAll({ page: initialPage, include_totals: true });
-        result.push(...data.roles);
-        pagesLeft -= 1;
-      }
-    }
-    return result;
   }
 
   @order('60')

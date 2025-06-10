@@ -1,4 +1,6 @@
 import { PromisePoolExecutor } from 'promise-pool-executor';
+import _ from 'lodash';
+
 import { flatten } from '../utils';
 
 const API_CONCURRENCY = 3;
@@ -9,7 +11,7 @@ const API_FREQUENCY_PER_SECOND = 8;
 const MAX_PAGE_SIZE = 100;
 
 function getEntity(rsp) {
-  const found = Object.values(rsp).filter(a => Array.isArray(a));
+  const found = Object.values(rsp).filter((a) => Array.isArray(a));
   if (found.length === 1) {
     return found[0];
   }
@@ -39,31 +41,46 @@ function pagedManager(client, manager) {
             delete newArgs[0].paginate;
 
             // Run the first request to get the total number of entity items
-            const rsp = await target[fnName](...newArgs);
+            const rsp = await client.pool.addSingleTask({
+              data: _.cloneDeep(newArgs),
+              generator: (pageArgs) => target[fnName](...pageArgs)
+            }).promise();
+
             data.push(...getEntity(rsp));
             const total = rsp.total || 0;
             const pagesLeft = Math.ceil(total / perPage) - 1;
-
             // Setup pool to get the rest of the pages
             if (pagesLeft > 0) {
-              await client.pool.addEachTask({
+              const pages = await client.pool.addEachTask({
                 data: Array.from(Array(pagesLeft).keys()),
                 generator: (page) => {
-                  const pageArgs = [ ...newArgs ];
+                  const pageArgs = _.cloneDeep(newArgs);
                   pageArgs[0].page = page + 1;
-                  return target[fnName](...pageArgs).then((r) => {
-                    data.push(...getEntity(r));
-                  });
+
+                  return target[fnName](...pageArgs).then((r) => getEntity(r));
                 }
-              }).promise().then(results => data.push(...flatten(results)));
+              }).promise();
+
+              data.push(...flatten(pages));
+
+              if (data.length !== total) {
+                throw new Error('Fail to load data from tenant');
+              }
             }
             return data;
           }
+
           return target[name](...args);
         };
       }
 
-      return Reflect.get(target, name, receiver);
+      const nestedManager = Reflect.get(target, name, receiver);
+
+      if (typeof nestedManager === 'object' && nestedManager !== null) {
+        return pagedManager(client, nestedManager);
+      }
+
+      return nestedManager;
     }
   });
 }
@@ -76,12 +93,5 @@ export default function pagedClient(client) {
     frequencyWindow: 1000 // 1 sec
   });
 
-  return new Proxy(client, {
-    get: function(target, name, receiver) {
-      if (name in target && target[name].getAll) {
-        return pagedManager(client, target[name]);
-      }
-      return Reflect.get(target, name, receiver);
-    }
-  });
+  return pagedManager(client, client);
 }
